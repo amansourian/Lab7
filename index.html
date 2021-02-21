@@ -79,12 +79,40 @@
 
     <!-- Main Script -->
     <script type="module">
+
+      const author = document.getElementById("author");
+      const endpoint = document.getElementById("endpoint");
+      const output = document.getElementById("output");
+      const recordForm = document.getElementById("recordForm");
+      const recordID = document.getElementById("recordID");
+      const recordIDcontainer = document.getElementById("recordIDcontainer");
+      const title = document.getElementById("title");
+
+      function getData(url, callback) {
+        fetch(url)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(response.status);
+            }
+            return response.json();
+          })
+          .then(data => callback(data))
+      }
+
       // This function should fetch all of the data from the given endpoint.
       // From the 4 CRUD actions, this is the READ action, and uses the GET http method.
       // The main difference from fetchOne() will be the URL you request from; check
       // the writeup to view the URL pattern for fetch one and fetch all
       function fetchAll() {
-        // TODO
+        recordForm.style.display = "none";
+        recordIDcontainer.style.display = "none";
+        output.innerText = "";
+        getData(endpoint.value, (data) => {
+          output.innerText = JSON.stringify(data)
+        })
+        .catch(error => {
+          output.innerText = error;
+        });
       }
 
       // This function should fetch one entry from the given endpoint.
@@ -92,7 +120,15 @@
       // The main difference from fetchAll() will be the URL you request from; check
       // the writeup to view the URL pattern for fetch one and fetch all
       function fetchOne() {
-        // TODO
+        recordForm.style.display = "none";
+        recordIDcontainer.style.display = "none";
+        output.innerText = "";
+        getData(endpoint.value + "/" + prompt("ID to fetch:"), (data) => {
+          output.innerText = JSON.stringify(data);
+        })
+        .catch(error => {
+          output.innerText = error;
+        });
       }
 
       // This function should use fetch to create one entry in the given endpoint.
@@ -100,7 +136,7 @@
       // The main difference from updateRecord() will be the URL you send data to; check
       // the writeup to view the URL pattern for create and update
       function createRecord() {
-        // TODO
+        
       }
 
       // This function should use fetch to update one existing entry in the given endpoint.

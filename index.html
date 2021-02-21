@@ -88,17 +88,6 @@
       const recordIDcontainer = document.getElementById("recordIDcontainer");
       const title = document.getElementById("title");
 
-      function getData(url, callback) {
-        fetch(url)
-          .then(response => {
-            if (!response.ok) {
-              throw new Error(response.status);
-            }
-            return response.json();
-          })
-          .then(data => callback(data))
-      }
-
       // This function should fetch all of the data from the given endpoint.
       // From the 4 CRUD actions, this is the READ action, and uses the GET http method.
       // The main difference from fetchOne() will be the URL you request from; check
@@ -107,10 +96,17 @@
         recordForm.style.display = "none";
         recordIDcontainer.style.display = "none";
         output.innerText = "";
-        getData(endpoint.value, (data) => {
-          output.innerText = JSON.stringify(data)
+        fetch(endpoint.value)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(response.status);
+          }
+          return response.json();
         })
-        .catch(error => {
+        .then(data => {
+          output.innerText = JSON.stringify(data);
+        })
+        .catch((error) => {
           output.innerText = error;
         });
       }
@@ -123,10 +119,18 @@
         recordForm.style.display = "none";
         recordIDcontainer.style.display = "none";
         output.innerText = "";
-        getData(endpoint.value + "/" + prompt("ID to fetch:"), (data) => {
+        let id = prompt("ID to fetch:");
+        fetch(endpoint.value + "/" + id)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(response.status);
+          }
+          return response.json();
+        })
+        .then(data => {
           output.innerText = JSON.stringify(data);
         })
-        .catch(error => {
+        .catch((error) => {
           output.innerText = error;
         });
       }
@@ -135,16 +139,64 @@
       // From the 4 CRUD actions, this is the CREATE action, and uses the POST http method.
       // The main difference from updateRecord() will be the URL you send data to; check
       // the writeup to view the URL pattern for create and update
-      function createRecord() {
-        
+      function createRecord(cmd) {
+        if (cmd == "show") {
+          recordForm.style.display = "inline";
+        } else if (cmd == "submit") {
+          fetch(endpoint.value, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ author: author.value, title: title.value }),
+          })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(response.status);
+            }
+            return response.json();
+          })
+          .then(data => {
+            output.innerHTML = JSON.stringify(data);
+          })
+          .catch((error) => {
+            output.innerHTML = error;
+          });
+          recordForm.style.display = "none";
+        }
       }
 
       // This function should use fetch to update one existing entry in the given endpoint.
       // From the 4 CRUD actions, this is the UPDATE action, and uses the PUT http method.
       // The main difference from createRecord() will be the URL you send data to; check
       // the writeup to view the URL pattern for create and update
-      function updateRecord() {
-        // TODO
+      function updateRecord(cmd) {
+        if (cmd == "show") {
+          recordForm.style.display = "inline";
+          recordIDcontainer.style.display = "inline";
+        } else if (cmd == "submit") {
+          fetch(endpoint.value + "/" + recordID.value, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ author: author.value, title: title.value }),
+          })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(response.status);
+            }
+            return response.json();
+          })
+          .then(data => {
+            output.innerText = JSON.stringify(data);
+          })
+          .catch((error) => {
+            output.innerText = error;
+          });
+          recordForm.style.display = "none";
+          recordIDcontainer.style.display = "none";
+        }
       }
 
       // This function should use fetch to delete one existing entry in the given endpoint.
@@ -153,7 +205,24 @@
       // request; check the writeup to view the URL pattern for get one and delete. THERE IS NO 
       // delete all, only delete one.
       function deleteRecord() {
-        // TODO
+        recordForm.style.display = "none";
+        recordIDcontainer.style.display = "none";
+        output.innerText = "";
+        fetch(endpoint.value + "/" + prompt("ID to delete:"), {
+          method: 'DELETE'
+        })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(response.status);
+          }
+          return response.json();
+        })
+        .then(data => {
+          output.innerText = JSON.stringify(data)
+        })
+        .catch((error) => {
+          output.innerText = error;
+        });
       }
 
       window.addEventListener('DOMContentLoaded', () => {
